@@ -7,13 +7,19 @@ import { Subject } from 'rxjs/Subject';
 import { User } from './user.model';
 import { AuthData } from './auth-data.model';
 import { TrainingService } from '../training/training.service';
+import { UIService } from '../shared/ui.service';
 
 @Injectable()
 export class AuthService {
   authChange = new Subject<boolean>();
   private isAuthenticated = false;
 
-  constructor(private router: Router, private afAuth: AngularFireAuth, private trainingService: TrainingService) {}
+  constructor(
+              private router: Router,
+              private afAuth: AngularFireAuth,
+              private trainingService: TrainingService,
+              private uiService: UIService
+            ) {}
 
   initAuthListener() {
     this.afAuth.authState.subscribe(user => {
@@ -31,24 +37,28 @@ export class AuthService {
   }
 
   registerUser(authData: AuthData) {
+    this.uiService.loadingStateChaged.next(true);
     this.afAuth.auth.createUserWithEmailAndPassword(
       authData.email,
       authData.password
     ).then(result => {
-
+      this.uiService.loadingStateChaged.next(false);
     }).catch(error => {
-
+      this.uiService.loadingStateChaged.next(false);
+      this.uiService.showSnackBar(error.message, null, 3000);
     });
   }
 
   login(authData: AuthData) {
+    this.uiService.loadingStateChaged.next(true);
     this.afAuth.auth.signInWithEmailAndPassword(
       authData.email,
       authData.password
     ).then(result => {
-
+      this.uiService.loadingStateChaged.next(false);
     }).catch(error => {
-
+      this.uiService.loadingStateChaged.next(false);
+      this.uiService.showSnackBar(error.message, null, 3000);
     });
   }
 
