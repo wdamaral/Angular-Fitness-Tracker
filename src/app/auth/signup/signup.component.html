@@ -36,7 +36,7 @@
       <mat-checkbox ngModel name="agree"
       required
       color="primary">Agree to Terms and Conditions.</mat-checkbox>
-    <button *ngIf="!(isLoading | async)" type="submit" mat-raised-button color="primary"
+    <button *ngIf="!(isLoading$ | async)" type="submit" mat-raised-button color="primary"
       [disabled]="f.invalid">Sign Up</button>
       <mat-spinner *ngIf="isLoading$ | async"></mat-spinner>
   </form>

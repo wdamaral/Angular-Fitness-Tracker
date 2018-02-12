@@ -1,15 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
 // rxjs
 import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
 import { map } from 'rxjs/Operators';
 
 import { TrainingService } from '../training.service';
 import { Exercise } from '../exercise.model';
 import { UIService } from '../../shared/ui.service';
+import * as fromTraining from '../training.reducer';
 import * as fromRoot from '../../app.reducer';
 
 @Component({
@@ -19,13 +19,12 @@ import * as fromRoot from '../../app.reducer';
 })
 export class NewTrainingComponent implements OnInit {
 
-  exercises: Exercise[];
-  exerciseSubscription: Subscription;
+  exercises$: Observable<Exercise[]>;
   // private loadingSubscription: Subscription;
   isLoading$: Observable<boolean>;
 
   constructor(private trainingService: TrainingService, private uiService: UIService,
-              private store: Store<fromRoot.State>) { }
+              private store: Store<fromTraining.State>) { }
 
   ngOnInit() {
     // this.loadingSubscription = this.uiService.loadingStateChaged.subscribe(
@@ -34,9 +33,7 @@ export class NewTrainingComponent implements OnInit {
     // });
     this.isLoading$ = this.store.select(fromRoot.getIsLoading);
 
-    this.exerciseSubscription = this.trainingService.exercisesChanged.subscribe(
-      exercises => (this.exercises = exercises)
-    );
+    this.exercises$ = this.store.select(fromTraining.getAvailableExercises);
     this.fetchExercises();
   }
 
@@ -46,11 +43,5 @@ export class NewTrainingComponent implements OnInit {
 
   fetchExercises() {
     this.trainingService.fetchAvailableExercises();
-  }
-
-  // tslint:disable-next-line:use-life-cycle-interface
-  ngOnDestroy() {
-    // this.loadingSubscription.unsubscribe();
-    this.exerciseSubscription.unsubscribe();
   }
 }
